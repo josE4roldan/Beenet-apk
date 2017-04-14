@@ -30,10 +30,36 @@ import java.util.concurrent.FutureTask;
 public class SendMethod {
 
 
+    public static void sendMethodNR(final String url, final HashMap<String, String> paramPost){
+
+        sendPost(url,paramPost);
+    }
+    public static void sendMethodNR(final String url){
+
+        sendGet(url);
+    }
 
 
     public static String sendMethod(final String url, final HashMap<String, String> paramPost)
     {
+
+
+
+        String result=null;
+        FutureTask<String> task = new FutureTask(new PostCall(url,paramPost));
+
+
+        ExecutorService es = Executors.newSingleThreadExecutor();
+        es.submit (task);
+        try{
+            result = task.get();
+            System.out.println(result);
+            return result;
+        }
+        catch(Exception e){
+            System.err.println(e);
+        }
+        es.shutdown();
 
 
 
@@ -188,7 +214,7 @@ public class SendMethod {
         }
         @Override
         public String call() throws Exception {
-            return  sendPost(url,paramPost);
+            return  sendPost(url, paramPost);
 
         }
     }
@@ -207,5 +233,7 @@ public class SendMethod {
 
         }
     }
+
+
 
 }

